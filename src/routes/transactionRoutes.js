@@ -3,14 +3,12 @@ const router = express.Router();
 
 const {
   getAllTransaction,
-  buyProduct,
-  getIndividualTransaction,
+  createTransaction,
+  getTransactionById
 } = require("../controllers/transactionController");
 
-const { authenticateToken } = require("../middlewares/auth");
-
 router.get("/transactions", getAllTransaction);
-router.get("/transactions/:id", authenticateToken, getIndividualTransaction);
-router.post("/transactions", authenticateToken, buyProduct);
+router.post("/transactions", createTransaction);
+router.get("/transactions/:id", getTransactionById);
 
 module.exports = router;

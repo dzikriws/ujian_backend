@@ -1,6 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const prisma = new PrismaClient();
 
 const registerUser = async (req, res) => {
@@ -35,7 +34,7 @@ const registerUser = async (req, res) => {
     });
 
     if (existingUser) {
-      return res.status(400).json({ message: "Name, Username" });
+      return res.status(400).json({ message: "Name, Username already exists" });
     }
 
     //hashing password before save
@@ -85,27 +84,7 @@ const loginUser = async (req, res) => {
         .json({ message: "Username or password is incorrect" });
     }
 
-    const getSellerId = await prisma.master_supplier.findFirst({
-      select:{
-        id: true
-      },
-      where: {
-        seller_id: user.id,
-      },
-    });
-
-    const token = jwt.sign(
-      {
-        id: user.id,
-        username: user.username,
-        seller_id: getSellerId ? getSellerId.id : null,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-    // console.log(getSellerId.id)
-
-    res.status(200).json({ message: "Login successful", token });
+    res.status(200).json({ message: "Login successful" });
   } catch (error) {
     console.error("Error logging in:", error);
     res.status(500).json({ message: "Error logging in", error });

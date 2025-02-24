@@ -1,13 +1,23 @@
 model transaction {
-    id               String               @id @default(uuid())
-    transaction_date DateTime             @default(now())
-    supplier         master_supplier      @relation(fields: [supplier_id], references: [id])
-    supplier_id      String
-    buyer            master_user          @relation(fields: [buyer_id], references: [id])
-    buyer_id         String
-    totalAmount      Decimal              @db.Decimal(15, 2)
-    status           String
-    created_at       DateTime             @default(now())
-    updated_at       DateTime             @updatedAt
-    details          transaction_detail[]
+    id                      String               @id @default(uuid())
+    transaction_date        DateTime             @default(now())
+    customer_or_supplier    master_supplier      @relation(fields: [customer_or_supplier_id], references: [id])
+    customer_or_supplier_id String
+    total_amount            Decimal              @db.Decimal(15, 2)
+    type                    transaction_type
+    created_at              DateTime             @default(now())
+    updated_at              DateTime             @updatedAt
+    details                 transaction_detail[]
+    status                  transaction_status
+}
+
+enum transaction_type {
+    PURCHASE
+    SALES
+}
+
+enum transaction_status {
+    PENDING
+    CONFIRMED
+    FINISH
 }

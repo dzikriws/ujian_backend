@@ -5,7 +5,6 @@ const getAllProduct = async (req, res) => {
   try {
     const data = await prisma.master_product.findMany({
       include: {
-        supplier: true,
         uom: true,
       },
     });
@@ -17,11 +16,9 @@ const getAllProduct = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    const supplier_id = req.user.seller_id;
     const { name, description, sku, category, price, uom_id } = req.body;
     const data = await prisma.master_product.create({
       data: {
-        supplier_id,
         name,
         description,
         sku,
@@ -30,7 +27,7 @@ const createProduct = async (req, res) => {
         uom_id,
       },
     });
-    res.status(200).json({ message: "success create product", data: data });
+    res.status(201).json({ message: "success create product", data: data });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -39,7 +36,7 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, sku, category, price, uomId } = req.body;
+    const { name, description, sku, category, price, uom_id } = req.body;
     const data = await prisma.master_product.update({
       where: {
         id,
@@ -50,10 +47,10 @@ const updateProduct = async (req, res) => {
         sku,
         category,
         price,
-        uomId,
+        uom_id,
       },
     });
-    res.status(200).json({ message: "success update product", data: data });
+    res.status(201).json({ message: "success update product", data: data });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -72,7 +69,7 @@ const deleteProduct = async (req, res) => {
       return res.status(404).json({ message: "product not found" });
     }
     res
-      .status(200)
+      .status(201)
       .json({ message: "success delete product", data: deleteSupplierProduct });
   } catch (error) {
     res.status(400).json({ message: error.message });

@@ -4,11 +4,13 @@ const router = express.Router();
 const {
   getAllSupplier,
   createSupplier,
+  deleteSupplier,
+  updateSupplier
 } = require("../controllers/supplierController");
 
-const { authenticateToken } = require("../middlewares/auth");
-
 router.get("/suppliers", getAllSupplier);
-router.post("/suppliers", authenticateToken, createSupplier);
+router.post("/suppliers", createSupplier);
+router.put("/suppliers/:id", updateSupplier);
+router.delete("/suppliers/:id", deleteSupplier);
 
 module.exports = router;

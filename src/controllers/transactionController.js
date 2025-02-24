@@ -5,7 +5,12 @@ const getAllTransaction = async (req, res) => {
   try {
     const data = await prisma.transaction.findMany({
       include: {
-        details: true,
+        details: {
+          include: {
+            product: true,
+          },
+        },
+        customer_or_supplier: true,
       },
     });
     res
@@ -16,86 +21,105 @@ const getAllTransaction = async (req, res) => {
   }
 };
 
-const getIndividualTransaction = async (req, res) => {
+const createTransaction = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const data = await prisma.transaction.findUnique({
+    const { products, customer_or_supplier_id, type } = req.body;
+
+    if (!products || products.length === 0 || !Array.isArray(products)) {
+      return res
+        .status(400)
+        .json({ message: "At least one product is required" });
+    }
+
+    const productIds = products.map((item) => item.product_id);
+
+    const findProduct = await prisma.master_product.findMany({
       where: {
-        buyer_id: userId,
+        id: { in: productIds },
       },
       include: {
-        transaction_detail: true,
-      },
-    });
-    res.status(200).json({ message: "success get transaction", data: data });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-const buyProduct = async (req, res) => {
-  try {
-    const buyerId = req.user.id;
-    const { product_id, quantity } = req.body;
-
-    const findProduct = await prisma.master_product.findUnique({
-      where: {
-        id: product_id,
-      },
-      include: {
-        supplier: true,
         uom: true,
       },
     });
 
-    if (!findProduct) {
-      return res.status(404).json({ message: "product not found" });
+    if (findProduct.length === 0) {
+      return res.status(404).json({ message: "Product(s) not found" });
     }
-    console.log(findProduct);
-    console.log(buyerId);
 
-    const totalAmount = findProduct.price * quantity;
-    console.log(totalAmount);
+    const totalAmount = findProduct.reduce((total, product) => {
+      const productData = products.find(
+        (p) => p.product_id === product.product_id
+      );
+      const quantity = productData ? productData.quantity : 1;
+      return total + product.price * quantity;
+    }, 0);
 
-    const data = await prisma.transaction.create({
+    const createTransaction = await prisma.transaction.create({
       data: {
-        supplier_id: findProduct.supplier.id,
-        buyer_id: buyerId,
-        totalAmount,
-        status: "pending",
+        customer_or_supplier_id,
+        type: type,
+        total_amount: totalAmount,
+        status: "PENDING",
       },
+    });
+
+    const transactionDetails = findProduct.map((product) => {
+      const productData = products.find(
+        (p) => p.product_id === product.product_id
+      );
+      const quantity = productData ? productData.quantity : 1;
+      return {
+        transaction_id: createTransaction.id,
+        product_id: product.id,
+        quantity: quantity,
+        uom_id: product.uom_id,
+        unit_price: product.price,
+        subtotal: product.price * quantity,
+      };
     });
 
     await prisma.transaction_detail.createMany({
-      data: [
-        {
-          transaction_id: data.id,
-          product_id: product_id,
-          quantity,
-          unit_price: findProduct.price,
-          uom_id: findProduct.uom.id,
-          subtotal: totalAmount,
-        },
-      ],
+      data: transactionDetails,
     });
 
-    const transactionDetail = await prisma.transaction_detail.findMany({
+    res.status(201).json({
+      message: "Success create transaction",
+      transaction: createTransaction,
+      transactionDetails: transactionDetails,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error creating transaction", error: error.message });
+  }
+};
+
+const getTransactionById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await prisma.transaction.findUnique({
       where: {
-        transaction_id: data.id,
+        id: id,
+      },
+      include: {
+        details: {
+          include: {
+            product: true,
+          },
+        },
+        customer_or_supplier: true,
       },
     });
-
-    console.log(data);
-    res.status(200).json({
-      message: "success buy product",
-      data: {
-        transaction: data,
-        transaction_detail: transactionDetail,
-      },
-    });
+    res
+      .status(200)
+      .json({ message: "success get transaction by id", data: data });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-module.exports = { getAllTransaction, getIndividualTransaction, buyProduct };
+module.exports = {
+  getAllTransaction,
+  createTransaction,
+  getTransactionById
+};

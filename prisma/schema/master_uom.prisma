@@ -1,6 +1,7 @@
 model master_uom {
     id                  String               @id @default(uuid())
     name                String               @unique
+    rate_conversion     Decimal              @db.Decimal(15, 2)
     created_at          DateTime             @default(now())
     updated_at          DateTime             @default(now()) @updatedAt
     products            master_product[]

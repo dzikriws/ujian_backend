@@ -5,7 +5,4 @@ model master_user {
     password   String
     created_at DateTime @default(now())
     updated_at DateTime @default(now()) @updatedAt
-
-    suplier master_supplier[]
-    buyer transaction[]
 }
