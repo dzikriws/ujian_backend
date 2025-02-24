@@ -1,0 +1,8 @@
+model master_uom {
+    id                  String               @id @default(uuid())
+    name                String               @unique
+    created_at          DateTime             @default(now())
+    updated_at          DateTime             @default(now()) @updatedAt
+    products            master_product[]
+    transaction_details transaction_detail[]
+}

@@ -1,0 +1,13 @@
+model master_supplier {
+    id             String           @id @default(uuid())
+    seller_id      String
+    seller         master_user      @relation(fields: [seller_id], references: [id])
+    contact_person String?
+    phone          String?
+    email          String?
+    address        String?
+    created_at     DateTime         @default(now())
+    updated_at     DateTime         @updatedAt
+    products       master_product[]
+    transactions   transaction[]
+}

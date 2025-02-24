@@ -1,0 +1,14 @@
+model transaction_detail {
+    id             String         @id @default(uuid())
+    transaction    transaction    @relation(fields: [transaction_id], references: [id])
+    transaction_id String
+    product        master_product @relation(fields: [product_id], references: [id])
+    product_id     String
+    quantity       Decimal
+    uom            master_uom     @relation(fields: [uom_id], references: [id])
+    uom_id         String
+    unit_price     Decimal
+    subtotal       Decimal
+    created_at     DateTime       @default(now())
+    updated_at     DateTime       @updatedAt
+}

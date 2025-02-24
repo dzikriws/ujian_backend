@@ -1,0 +1,15 @@
+model master_product {
+    id                  String               @id @default(uuid())
+    name                String
+    description         String?
+    sku                 String               @unique
+    category            String?
+    price               Decimal
+    uom                 master_uom           @relation(fields: [uom_id], references: [id])
+    uom_id              String
+    supplier            master_supplier      @relation(fields: [supplier_id], references: [id])
+    supplier_id         String
+    created_at          DateTime             @default(now())
+    updated_at          DateTime             @default(now()) @updatedAt
+    transaction_details transaction_detail[]
+}
