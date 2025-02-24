@@ -1,10 +1,18 @@
 model master_supplier {
-    id             String           @id @default(uuid())
-    contact_person String?
-    phone          String?
-    email          String?
-    address        String?
-    created_at     DateTime         @default(now())
-    updated_at     DateTime         @updatedAt
-    transactions   transaction[]
+    id            Int      @id @default(autoincrement())
+    suplier_name  String
+    address       String?
+    city          String?
+    country       String?
+    payment_terms String
+    bank_name     String
+    bank_account  String
+    contact_name  String?
+    contact_phone String?
+    contact_email String?
+    created_at    DateTime @default(now())
+    updated_at    DateTime @updatedAt
+    status        String
+
+    transactions transaction[]
 }

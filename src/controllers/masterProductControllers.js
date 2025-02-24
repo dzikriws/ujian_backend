@@ -3,11 +3,7 @@ const prisma = new PrismaClient();
 
 const getAllProduct = async (req, res) => {
   try {
-    const data = await prisma.master_product.findMany({
-      include: {
-        uom: true,
-      },
-    });
+    const data = await prisma.master_product.findMany({});
     res.status(200).json({ message: "success get all product", data: data });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -16,15 +12,12 @@ const getAllProduct = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    const { name, description, sku, category, price, uom_id } = req.body;
+    const { product_name, description } = req.body;
     const data = await prisma.master_product.create({
       data: {
-        name,
+        product_name,
         description,
-        sku,
-        category,
-        price,
-        uom_id,
+        status: "A",
       },
     });
     res.status(201).json({ message: "success create product", data: data });
@@ -36,18 +29,14 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, sku, category, price, uom_id } = req.body;
+    const { product_name, description } = req.body;
     const data = await prisma.master_product.update({
       where: {
         id,
       },
       data: {
-        name,
+        product_name,
         description,
-        sku,
-        category,
-        price,
-        uom_id,
       },
     });
     res.status(201).json({ message: "success update product", data: data });
@@ -59,9 +48,12 @@ const updateProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const deleteSupplierProduct = await prisma.master_product.delete({
+    const deleteSupplierProduct = await prisma.master_product.update({
       where: {
         id,
+      },
+      data: {
+        status: "D",
       },
     });
 

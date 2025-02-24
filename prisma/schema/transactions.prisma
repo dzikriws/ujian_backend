@@ -1,23 +1,18 @@
 model transaction {
-    id                      String               @id @default(uuid())
-    transaction_date        DateTime             @default(now())
-    customer_or_supplier    master_supplier      @relation(fields: [customer_or_supplier_id], references: [id])
-    customer_or_supplier_id String
-    total_amount            Decimal              @db.Decimal(15, 2)
-    type                    transaction_type
-    created_at              DateTime             @default(now())
-    updated_at              DateTime             @updatedAt
-    details                 transaction_detail[]
-    status                  transaction_status
+    id               Int              @id @default(autoincrement())
+    transaction_type transaction_type
+    supplier_id      Int
+    customer_name    String
+    transaction_date DateTime         @default(now())
+    tax_rate         Decimal          @db.Decimal(15, 2)
+    username         String
+
+    created_at DateTime        @default(now())
+    updated_at DateTime        @updatedAt
+    supplier   master_supplier @relation(fields: [supplier_id], references: [id])
 }
 
 enum transaction_type {
     PURCHASE
     SALES
-}
-
-enum transaction_status {
-    PENDING
-    CONFIRMED
-    FINISH
 }

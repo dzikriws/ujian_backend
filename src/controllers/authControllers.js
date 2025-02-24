@@ -4,12 +4,12 @@ const prisma = new PrismaClient();
 
 const registerUser = async (req, res) => {
   try {
-    const { name, username, password } = req.body;
+    const { username, email, password } = req.body;
 
-    if (!name || !username || !password) {
+    if (!username || !password || !email) {
       return res
         .status(400)
-        .json({ message: "Name, Username, and password are required" });
+        .json({ message: "Email, Username, and password are required" });
     }
 
     //password validation
@@ -29,7 +29,7 @@ const registerUser = async (req, res) => {
     //check if username and email already exists
     const existingUser = await prisma.master_user.findFirst({
       where: {
-        OR: [{ name }, { username }],
+        OR: [{ username }],
       },
     });
 
@@ -43,9 +43,10 @@ const registerUser = async (req, res) => {
     //create new user
     const user = await prisma.master_user.create({
       data: {
-        name,
         username,
-        password: hashedPassword,
+        email,
+        hash_password: hashedPassword,
+        status: "A",
       },
     });
 

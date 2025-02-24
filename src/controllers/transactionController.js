@@ -23,69 +23,52 @@ const getAllTransaction = async (req, res) => {
 
 const createTransaction = async (req, res) => {
   try {
-    const { products, customer_or_supplier_id, type } = req.body;
+    const {
+      transaction_type,
+      supplier_id,
+      customer_name,
+      tax_rate,
+      username,
+      product_id,
+      uom_id,
+      quantity,
+      price
+    } = req.body;
 
-    if (!products || products.length === 0 || !Array.isArray(products)) {
+    if (!transaction_type || !supplier_id || !customer_name || !tax_rate || !username) {
       return res
         .status(400)
-        .json({ message: "At least one product is required" });
+        .json({ message: "All fields are required" });
     }
 
-    const productIds = products.map((item) => item.product_id);
-
-    const findProduct = await prisma.master_product.findMany({
-      where: {
-        id: { in: productIds },
-      },
-      include: {
-        uom: true,
-      },
-    });
-
-    if (findProduct.length === 0) {
-      return res.status(404).json({ message: "Product(s) not found" });
-    }
-
-    const totalAmount = findProduct.reduce((total, product) => {
-      const productData = products.find(
-        (p) => p.product_id === product.product_id
-      );
-      const quantity = productData ? productData.quantity : 1;
-      return total + product.price * quantity;
-    }, 0);
+    const amount = quantity * price;
 
     const createTransaction = await prisma.transaction.create({
       data: {
-        customer_or_supplier_id,
-        type: type,
-        total_amount: totalAmount,
-        status: "PENDING",
+        transaction_type: transaction_type,
+        supplier_id: supplier_id,
+        customer_name: customer_name,
+        transaction_date: Date.now(),
+        tax_rate
       },
     });
 
-    const transactionDetails = findProduct.map((product) => {
-      const productData = products.find(
-        (p) => p.product_id === product.product_id
-      );
-      const quantity = productData ? productData.quantity : 1;
-      return {
+    const createTransactionDetail = await prisma.transaction_detail.create({
+      data: {
         transaction_id: createTransaction.id,
-        product_id: product.id,
+        product_id: product_id,
+        uom_id: uom_id,
         quantity: quantity,
-        uom_id: product.uom_id,
-        unit_price: product.price,
-        subtotal: product.price * quantity,
-      };
+        unit_price: price,
+        subtotal: amount
+      },
     });
 
-    await prisma.transaction_detail.createMany({
-      data: transactionDetails,
-    });
 
     res.status(201).json({
       message: "Success create transaction",
       transaction: createTransaction,
-      transactionDetails: transactionDetails,
+      transactionDetails: createTransactionDetail,
     });
   } catch (error) {
     res
@@ -118,8 +101,27 @@ const getTransactionById = async (req, res) => {
   }
 };
 
+const updateTransaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const data = await prisma.transaction.update({
+      where: {
+        id: id,
+      },
+      data: {
+        status: status,
+      },
+    });
+    res.status(201).json({ message: "success update transaction", data: data });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getAllTransaction,
   createTransaction,
-  getTransactionById
+  getTransactionById,
+  updateTransaction,
 };

@@ -3,11 +3,7 @@ const prisma = new PrismaClient();
 
 const getAllSupplier = async (req, res) => {
   try {
-    const data = await prisma.master_supplier.findMany({
-      include: {
-        transactions: true,
-      },
-    });
+    const data = await prisma.master_supplier.findMany({});
     res.status(200).json({ message: "success get all user", data: data });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -16,34 +12,49 @@ const getAllSupplier = async (req, res) => {
 
 const createSupplier = async (req, res) => {
   try {
-    const { contact_person, phone, email, address } = req.body;
+    const {
+      suplier_name,
+      address,
+      city,
+      country,
+      payment_terms,
+      bank_name,
+      bank_account,
+      contact_name,
+      contact_phone,
+      contact_email,
+    } = req.body;
 
-    if (!contact_person || !phone || !email || !address) {
-      return res
-        .status(400)
-        .json({
-          message: "contact person, phone, email, and address are required",
-        });
-    }
-
-    const checkingSupplier = await prisma.master_supplier.findFirst({
-      where: {
-        contact_person,
-        phone,
-        email,
-      },
-    });
-
-    if (checkingSupplier) {
-      return res.status(400).json({ message: "supplier already exists" });
+    if (
+      !suplier_name ||
+      !address ||
+      !city ||
+      !country ||
+      !payment_terms ||
+      !bank_name ||
+      !bank_account ||
+      !contact_name ||
+      !contact_phone ||
+      !contact_email
+    ) {
+      return res.status(400).json({
+        message: "All fields are required",
+      });
     }
 
     const data = await prisma.master_supplier.create({
       data: {
-        contact_person,
-        phone,
-        email,
+        suplier_name,
         address,
+        city,
+        country,
+        payment_terms,
+        bank_name,
+        bank_account,
+        contact_name,
+        contact_phone,
+        contact_email,
+        status: "A",
       },
     });
     res.status(200).json({
@@ -58,16 +69,33 @@ const createSupplier = async (req, res) => {
 const updateSupplier = async (req, res) => {
   try {
     const { id } = req.params;
-    const { contact_person, phone, email, address } = req.body;
+    const {
+      suplier_name,
+      address,
+      city,
+      country,
+      payment_terms,
+      bank_name,
+      bank_account,
+      contact_name,
+      contact_phone,
+      contact_email,
+    } = req.body;
     const data = await prisma.master_supplier.update({
       where: {
         id,
       },
       data: {
-        contact_person,
-        phone,
-        email,
+        suplier_name,
         address,
+        city,
+        country,
+        payment_terms,
+        bank_name,
+        bank_account,
+        contact_name,
+        contact_phone,
+        contact_email,
       },
     });
     res.status(200).json({ message: "success update supplier", data: data });
@@ -79,9 +107,12 @@ const updateSupplier = async (req, res) => {
 const deleteSupplier = async (req, res) => {
   try {
     const { id } = req.params;
-    const data = await prisma.master_supplier.delete({
+    const data = await prisma.master_supplier.update({
       where: {
         id,
+      },
+      data: {
+        status: "D",
       },
     });
     res.status(200).json({ message: "success delete supplier", data: data });

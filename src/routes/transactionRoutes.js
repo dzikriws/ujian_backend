@@ -4,11 +4,15 @@ const router = express.Router();
 const {
   getAllTransaction,
   createTransaction,
-  getTransactionById
+  getTransactionById,
+  updateTransaction,
 } = require("../controllers/transactionController");
 
+const upload = require("../config/multer");
+
 router.get("/transactions", getAllTransaction);
-router.post("/transactions", createTransaction);
+router.post("/transactions", upload.single("proof_url"), createTransaction);
 router.get("/transactions/:id", getTransactionById);
+router.put("/transactions/:id", updateTransaction);
 
 module.exports = router;

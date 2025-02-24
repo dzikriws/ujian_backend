@@ -1,8 +1,8 @@
 model master_user {
-    id         String   @id @default(uuid())
-    name       String   @unique
-    username   String   @unique
-    password   String
-    created_at DateTime @default(now())
-    updated_at DateTime @default(now()) @updatedAt
+    id            Int      @id @default(autoincrement())
+    username      String   
+    email         String  
+    hash_password String
+    ts_insert     DateTime @default(now())
+    status        String
 }
