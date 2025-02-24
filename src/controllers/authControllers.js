@@ -103,7 +103,7 @@ const loginUser = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
-    console.log(getSellerId.id)
+    // console.log(getSellerId.id)
 
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {

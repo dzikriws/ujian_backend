@@ -6,6 +6,7 @@ const productRoutes = require("./src/routes/masterProductRoutes");
 const unitMeasurementRoutes = require("./src/routes/unitOfMeasurementRoutes");
 const authRoutes = require('./src/routes/authRoutes');
 const suplierRoutes = require('./src/routes/supplierRoutes');
+const transactionRoutes = require('./src/routes/transactionRoutes');
 
 app.use(express.json());
 app.use(cors());
@@ -13,6 +14,7 @@ app.use(productRoutes);
 app.use(unitMeasurementRoutes);
 app.use(authRoutes);
 app.use(suplierRoutes);
+app.use(transactionRoutes);
 
 const port = process.env.PORT || 3000;
 

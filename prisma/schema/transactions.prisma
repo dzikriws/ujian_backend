@@ -5,7 +5,7 @@ model transaction {
     supplier_id      String
     buyer            master_user          @relation(fields: [buyer_id], references: [id])
     buyer_id         String
-    totalAmount      Decimal
+    totalAmount      Decimal              @db.Decimal(15, 2)
     status           String
     created_at       DateTime             @default(now())
     updated_at       DateTime             @updatedAt

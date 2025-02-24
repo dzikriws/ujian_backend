@@ -4,11 +4,11 @@ model transaction_detail {
     transaction_id String
     product        master_product @relation(fields: [product_id], references: [id])
     product_id     String
-    quantity       Decimal
+    quantity       Decimal        @db.Decimal(15, 2)
     uom            master_uom     @relation(fields: [uom_id], references: [id])
     uom_id         String
-    unit_price     Decimal
-    subtotal       Decimal
+    unit_price     Decimal        @db.Decimal(15, 2)
+    subtotal       Decimal        @db.Decimal(15, 2)
     created_at     DateTime       @default(now())
     updated_at     DateTime       @updatedAt
 }
