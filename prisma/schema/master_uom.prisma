@@ -4,4 +4,7 @@ model master_uom {
     rate_conversion Decimal  @db.Decimal(15, 2)
     created_at      DateTime @default(now())
     updated_at      DateTime @default(now()) @updatedAt
+
+    transaction_detail transaction_detail[]
+    price_list         price_list[]
 }

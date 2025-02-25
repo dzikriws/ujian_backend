@@ -3,7 +3,11 @@ const prisma = new PrismaClient();
 
 const getAllSupplier = async (req, res) => {
   try {
-    const data = await prisma.master_supplier.findMany({});
+    const data = await prisma.master_supplier.findMany({
+      where: {
+        status: "A",
+      },
+    });
     res.status(200).json({ message: "success get all user", data: data });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -69,6 +73,7 @@ const createSupplier = async (req, res) => {
 const updateSupplier = async (req, res) => {
   try {
     const { id } = req.params;
+    const parseId = parseInt(id);
     const {
       suplier_name,
       address,
@@ -83,7 +88,7 @@ const updateSupplier = async (req, res) => {
     } = req.body;
     const data = await prisma.master_supplier.update({
       where: {
-        id,
+        id: parseId,
       },
       data: {
         suplier_name,
@@ -107,9 +112,10 @@ const updateSupplier = async (req, res) => {
 const deleteSupplier = async (req, res) => {
   try {
     const { id } = req.params;
+    const parseId = parseInt(id);
     const data = await prisma.master_supplier.update({
       where: {
-        id,
+        id: parseId,
       },
       data: {
         status: "D",
@@ -121,9 +127,28 @@ const deleteSupplier = async (req, res) => {
   }
 };
 
+const getSupplierDetails = async(req, res) => {
+  try {
+    const { id } = req.params;
+    const parseId = parseInt(id);
+    const data = await prisma.master_supplier.findUnique({
+      where: {
+        id: parseId,
+      },
+      include: {
+        transactions: true
+      }
+    });
+    res.status(200).json({ message: "success get supplier details", data: data });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+}
+
 module.exports = {
   getAllSupplier,
   createSupplier,
   updateSupplier,
   deleteSupplier,
+  getSupplierDetails
 };

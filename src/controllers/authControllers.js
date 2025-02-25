@@ -1,10 +1,15 @@
 const { PrismaClient } = require("@prisma/client");
-const bcrypt = require("bcrypt");
+// const bcrypt = require("bcrypt");
 const prisma = new PrismaClient();
+const crypto = require("crypto");
+
+const hashPasswordMD5 = (password) => {
+  return crypto.createHash("md5").update(password).digest("hex");
+};
 
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { id, username, email, password } = req.body;
 
     if (!username || !password || !email) {
       return res
@@ -38,11 +43,16 @@ const registerUser = async (req, res) => {
     }
 
     //hashing password before save
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashPasswordMD5 = (password) => {
+      return crypto.createHash("md5").update(password).digest("hex");
+    };
+
+    const hashedPassword = hashPasswordMD5(password);
 
     //create new user
     const user = await prisma.master_user.create({
       data: {
+        id,
         username,
         email,
         hash_password: hashedPassword,
@@ -73,13 +83,19 @@ const loginUser = async (req, res) => {
         .json({ message: "Username and password are required" });
     }
 
-    const user = await prisma.master_user.findUnique({
+    const user = await prisma.master_user.findFirst({
       where: { username },
     });
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "Username or password is incorrect" });
+    }
 
-    if (!user || !isPasswordValid) {
+    const isPasswordValid = hashPasswordMD5(password) === user.hash_password;
+
+    if (!isPasswordValid) {
       return res
         .status(404)
         .json({ message: "Username or password is incorrect" });

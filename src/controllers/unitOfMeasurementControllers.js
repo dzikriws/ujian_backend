@@ -29,9 +29,10 @@ const updateUOM = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, rate_conversion } = req.body;
+    const parseId = parseInt(id);
     const data = await prisma.master_uom.update({
       where: {
-        id,
+        id: parseId,
       },
       data: {
         name,
@@ -47,9 +48,10 @@ const updateUOM = async (req, res) => {
 const deleteUOM = async (req, res) => {
   try {
     const { id } = req.params;
+    const parseId = parseInt(id);
     const data = await prisma.master_uom.delete({
       where: {
-        id,
+        id: parseId,
       },
     });
     res.status(201).json({ message: "success delete UOM", data: data });
