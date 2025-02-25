@@ -3,10 +3,15 @@ const router = express.Router();
 
 const {
   getAllEmployee,
-  createEmployee,
+  createUserRole,
+  getUserRole,
+  updateUserRole,
+  deleteUserRole,
 } = require("../controllers/employeeControllers");
 
-router.get('/employees', getAllEmployee);
-router.post('/employee', createEmployee)
+router.get("/employees", getAllEmployee);
+router.post("/employees", createUserRole);
+router.put("/employees/:id", updateUserRole);
+router.delete("/employees/:id", deleteUserRole);
 
 module.exports = router;

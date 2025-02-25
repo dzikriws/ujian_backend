@@ -7,7 +7,7 @@ const unitMeasurementRoutes = require("./src/routes/unitOfMeasurementRoutes");
 const authRoutes = require('./src/routes/authRoutes');
 const suplierRoutes = require('./src/routes/supplierRoutes');
 const transactionRoutes = require('./src/routes/transactionRoutes');
-const userRoles = require('./src/routes/userRoleRoutes');
+// const userRoles = require('./src/routes/userRoleRoutes');
 const priceRoutes = require('./src/routes/priceRoutes');
 const employeeRoutes = require('./src/routes/employeeRoutes');
 
@@ -18,7 +18,7 @@ app.use(unitMeasurementRoutes);
 app.use(authRoutes);
 app.use(suplierRoutes);
 app.use(transactionRoutes);
-app.use(userRoles);
+// app.use(userRoles);
 app.use(priceRoutes);
 app.use(employeeRoutes);
 

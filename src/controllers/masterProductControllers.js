@@ -5,8 +5,11 @@ const getAllProduct = async (req, res) => {
   try {
     const data = await prisma.master_product.findMany({
       include: {
-        price_list: true
-      }
+        price_list: true,
+      },
+      where: {
+        status: "A",
+      },
     });
     res.status(200).json({ message: "success get all product", data: data });
   } catch (error) {
@@ -39,7 +42,7 @@ const updateProduct = async (req, res) => {
 
     const data = await prisma.master_product.update({
       where: {
-        id : parseId,
+        id: parseId,
       },
       data: {
         product_name,
