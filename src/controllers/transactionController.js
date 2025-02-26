@@ -77,7 +77,7 @@ const createTransaction = async (req, res) => {
         }
 
         const price = parseFloat(priceList.price);
-        const amount = item.quantity * price + item.quantity * price * tax_rate;
+        const amount = item.quantity * price;
 
         return {
           transaction_id: transactionId,

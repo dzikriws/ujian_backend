@@ -10,6 +10,7 @@ const transactionRoutes = require('./src/routes/transactionRoutes');
 // const userRoles = require('./src/routes/userRoleRoutes');
 const priceRoutes = require('./src/routes/priceRoutes');
 const employeeRoutes = require('./src/routes/employeeRoutes');
+const statRoutes = require('./src/routes/statRoute');
 
 app.use(express.json());
 app.use(cors());
@@ -21,6 +22,7 @@ app.use(transactionRoutes);
 // app.use(userRoles);
 app.use(priceRoutes);
 app.use(employeeRoutes);
+app.use(statRoutes);
 
 const port = process.env.PORT || 3000;
 
