@@ -3,10 +3,15 @@ const prisma = new PrismaClient();
 
 const getAllTransaction = async (req, res) => {
   try {
+    const type = req.query.type;
+
     const data = await prisma.transaction.findMany({
+      where: {
+        transaction_type: type,
+      },
       include: {
-        transaction_detail: true,
-      }
+        supplier: true,
+      },
     });
     res
       .status(200)
@@ -19,59 +24,89 @@ const getAllTransaction = async (req, res) => {
 const createTransaction = async (req, res) => {
   try {
     const {
-      transaction_id,
       transaction_type,
-      supplier_id,
       customer_name,
+      supplier_id,
+      transaction_date,
       tax_rate,
       username,
-      product_id,
-      transaction_date,
-      uom_id,
-      quantity,
-      price,
+      transaction_detail,
     } = req.body;
 
-    if (
-      !transaction_type
-    ) {
-      return res.status(400).json({ message: "Transaction type is required" });
+    // Validasi tipe transaksi
+    if (transaction_type === "penjualan" && !customer_name) {
+      return res.status(400).json({
+        message: "Customer name is required for sales transactions.",
+      });
+    }
+    if (transaction_type === "pembelian" && !supplier_id) {
+      return res.status(400).json({
+        message: "Supplier ID is required for purchase transactions.",
+      });
     }
 
-    const amount = quantity * price;
-
-    const createTransaction = await prisma.transaction.create({
+    // **Buat transaksi tanpa menentukan ID (otomatis dari sequence)**
+    const newTransaction = await prisma.transaction.create({
       data: {
-        id: transaction_id,
-        transaction_type: transaction_type,
-        supplier_id: supplier_id,
-        customer_name: customer_name,
-        username,
-        transaction_date,
+        transaction_type,
+        customer_name: transaction_type === "penjualan" ? customer_name : null,
+        supplier_id: transaction_type === "pembelian" ? supplier_id : null,
+        transaction_date: new Date(transaction_date),
         tax_rate,
+        username,
       },
     });
 
-    const createTransactionDetail = await prisma.transaction_detail.create({
-      data: {
-        transaction_id: transaction_id,
-        product_id: product_id,
-        uom_id: uom_id,
-        quantity: quantity,
-        price: price,
-        amount: amount,
-      },
+    // **Ambil transaction_id yang baru dibuat**
+    const transactionId = newTransaction.id;
+
+    // **Buat transaction_detail tanpa menentukan ID (otomatis dari sequence)**
+    const detailsData = await Promise.all(
+      transaction_detail.map(async (item) => {
+        const priceList = await prisma.price_list.findFirst({
+          where: {
+            product_id: item.product_id,
+            uom_id: item.uom_id,
+          },
+        });
+
+        if (!priceList) {
+          throw new Error(
+            `Price not found for product_id: ${item.product_id} and uom_id: ${item.uom_id}`
+          );
+        }
+
+        const price = parseFloat(priceList.price);
+        const amount = item.quantity * price + item.quantity * price * tax_rate;
+
+        return {
+          transaction_id: transactionId,
+          product_id: item.product_id,
+          uom_id: item.uom_id,
+          quantity: item.quantity,
+          price,
+          amount,
+        };
+      })
+    );
+
+    // Simpan semua transaction_detail
+    await prisma.transaction_detail.createMany({
+      data: detailsData,
     });
 
     res.status(201).json({
-      message: "Success create transaction",
-      transaction: createTransaction,
-      transactionDetails: createTransactionDetail,
+      message: "Transaction created successfully",
+      data: {
+        transaction: newTransaction,
+        transaction_detail: detailsData,
+      },
     });
   } catch (error) {
+    console.error(error);
     res
       .status(500)
-      .json({ message: "Error creating transaction", error: error.message });
+      .json({ message: "Internal server error", error: error.message });
   }
 };
 
@@ -87,8 +122,8 @@ const getTransactionById = async (req, res) => {
         transaction_detail: {
           include: {
             product: true,
-            uom: true
-          }
+            uom: true,
+          },
         },
       },
     });
@@ -123,38 +158,53 @@ const getTransactionDetail = async (req, res) => {
     const { id } = req.params;
     const parseId = parseInt(id);
 
-    const getProductId = await prisma.transaction_detail.findMany({
-      where: {
-        id : parseId,
-      },
-      select: {
-        product_id: true
-      }
-    })
+    // const getProductId = await prisma.transaction_detail.findMany({
+    //   where: {
+    //     id : parseId,
+    //   },
+    //   select: {
+    //     product_id: true
+    //   }
+    // })
 
-    const data = await prisma.transaction_detail.findMany({
+    // const data = await prisma.transaction_detail.findMany({
+    //   where: {
+    //     id : parseId,
+    //   },
+    //   include: {
+    //     product: {
+    //       select: {
+    //         product_name: true,
+    //         description: true
+    //       }
+    //     },
+    //     uom: {
+    //       select: {
+    //         name: true,
+    //         price_list: {
+    //           where: {
+    //             product_id: getProductId[0].product_id
+    //           }
+    //         }
+    //       }
+    //     },
+    //     transaction: true
+    //   }
+    // });
+
+    const data = await prisma.transaction.findFirst({
       where: {
-        id : parseId,
+        id: parseId,
       },
       include: {
-        product: {
-          select: {
-            product_name: true,
-            description: true
-          }
+        transaction_detail: {
+          include: {
+            product: true,
+            uom: true,
+          },
         },
-        uom: {
-          select: {
-            name: true,
-            price_list: {
-              where: {
-                product_id: getProductId[0].product_id
-              }
-            }
-          }
-        },
-        transaction: true
-      }
+        supplier: true,
+      },
     });
     res
       .status(200)
@@ -169,5 +219,5 @@ module.exports = {
   createTransaction,
   getTransactionById,
   updateTransaction,
-  getTransactionDetail
+  getTransactionDetail,
 };

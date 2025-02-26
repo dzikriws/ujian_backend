@@ -10,6 +10,9 @@ const getAllProduct = async (req, res) => {
       where: {
         status: "A",
       },
+      orderBy: {
+        id: "asc",
+      }
     });
     res.status(200).json({ message: "success get all product", data: data });
   } catch (error) {
