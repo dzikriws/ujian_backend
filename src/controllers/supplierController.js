@@ -14,6 +14,8 @@ const getAllSupplier = async (req, res) => {
   }
 };
 
+// ---------------------------------------------------------------------------------------------
+
 const createSupplier = async (req, res) => {
   try {
     const {
@@ -70,6 +72,8 @@ const createSupplier = async (req, res) => {
   }
 };
 
+// ---------------------------------------------------------------------------------------------
+
 const updateSupplier = async (req, res) => {
   try {
     const { id } = req.params;
@@ -86,6 +90,24 @@ const updateSupplier = async (req, res) => {
       contact_phone,
       contact_email,
     } = req.body;
+
+    if (
+      !suplier_name ||
+      !address ||
+      !city ||
+      !country ||
+      !payment_terms ||
+      !bank_name ||
+      !bank_account ||
+      !contact_name ||
+      !contact_phone ||
+      !contact_email
+    ) {
+      return res.status(400).json({
+        message: "All fields are required",
+      });
+    }
+
     const data = await prisma.master_supplier.update({
       where: {
         id: parseId,
@@ -109,6 +131,8 @@ const updateSupplier = async (req, res) => {
   }
 };
 
+// ---------------------------------------------------------------------------------------------
+
 const deleteSupplier = async (req, res) => {
   try {
     const { id } = req.params;
@@ -127,7 +151,9 @@ const deleteSupplier = async (req, res) => {
   }
 };
 
-const getSupplierDetails = async(req, res) => {
+// ---------------------------------------------------------------------------------------------
+
+const getSupplierDetails = async (req, res) => {
   try {
     const { id } = req.params;
     const parseId = parseInt(id);
@@ -136,19 +162,21 @@ const getSupplierDetails = async(req, res) => {
         id: parseId,
       },
       include: {
-        transactions: true
-      }
+        transactions: true,
+      },
     });
-    res.status(200).json({ message: "success get supplier details", data: data });
+    res
+      .status(200)
+      .json({ message: "success get supplier details", data: data });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-}
+};
 
 module.exports = {
   getAllSupplier,
   createSupplier,
   updateSupplier,
   deleteSupplier,
-  getSupplierDetails
+  getSupplierDetails,
 };

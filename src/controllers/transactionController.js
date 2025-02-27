@@ -21,6 +21,8 @@ const getAllTransaction = async (req, res) => {
   }
 };
 
+// ---------------------------------------------------------------------------------------------
+
 const createTransaction = async (req, res) => {
   try {
     const {
@@ -33,7 +35,7 @@ const createTransaction = async (req, res) => {
       transaction_detail,
     } = req.body;
 
-    // Validasi tipe transaksi
+    // validation type
     if (transaction_type === "penjualan" && !customer_name) {
       return res.status(400).json({
         message: "Customer name is required for sales transactions.",
@@ -45,7 +47,7 @@ const createTransaction = async (req, res) => {
       });
     }
 
-    // **Buat transaksi tanpa menentukan ID (otomatis dari sequence)**
+    // create transaction
     const newTransaction = await prisma.transaction.create({
       data: {
         transaction_type,
@@ -57,10 +59,10 @@ const createTransaction = async (req, res) => {
       },
     });
 
-    // **Ambil transaction_id yang baru dibuat**
+    // get id transaction to fill in all transaction detail
     const transactionId = newTransaction.id;
 
-    // **Buat transaction_detail tanpa menentukan ID (otomatis dari sequence)**
+    // initialize transaction detail
     const detailsData = await Promise.all(
       transaction_detail.map(async (item) => {
         const priceList = await prisma.price_list.findFirst({
@@ -90,7 +92,7 @@ const createTransaction = async (req, res) => {
       })
     );
 
-    // Simpan semua transaction_detail
+    // save all transaction detail
     await prisma.transaction_detail.createMany({
       data: detailsData,
     });
@@ -109,6 +111,8 @@ const createTransaction = async (req, res) => {
       .json({ message: "Internal server error", error: error.message });
   }
 };
+
+// ---------------------------------------------------------------------------------------------
 
 const getTransactionById = async (req, res) => {
   try {
@@ -135,6 +139,8 @@ const getTransactionById = async (req, res) => {
   }
 };
 
+// ---------------------------------------------------------------------------------------------
+
 const updateTransaction = async (req, res) => {
   try {
     const { id } = req.params;
@@ -152,6 +158,8 @@ const updateTransaction = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+// ---------------------------------------------------------------------------------------------
 
 const getTransactionDetail = async (req, res) => {
   try {

@@ -10,25 +10,68 @@ const getAllUOM = async (req, res) => {
   }
 };
 
+// ---------------------------------------------------------------------------------------------
+
 const createUOM = async (req, res) => {
   try {
     const { name, rate_conversion } = req.body;
+
+    // check if name and rate_conversion are provided
+    if (!name || !rate_conversion) {
+      return res
+        .status(400)
+        .json({ message: "name and rate_conversion are required" });
+    }
+
+    const checkUOM = await prisma.master_uom.findFirst({
+      where: {
+        name,
+      },
+    });
+
+    // check if a UOM with the same name already exists
+    if (checkUOM) {
+      return res.status(400).json({ message: "UOM already exists" });
+    }
+
     const data = await prisma.master_uom.create({
       data: {
         name,
         rate_conversion,
       },
     });
+
     res.status(201).json({ message: "success create UOM", data: data });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
+// ---------------------------------------------------------------------------------------------
+
 const updateUOM = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, rate_conversion } = req.body;
+
+    // check if name and rate_conversion are provided
+    if (!name || !rate_conversion) {
+      return res
+        .status(400)
+        .json({ message: "name and rate_conversion are required" });
+    }
+
+    // check if a UOM with the same name already exists
+    const checkUOM = await prisma.master_uom.findFirst({
+      where: {
+        name,
+      },
+    });
+
+    if (checkUOM) {
+      return res.status(400).json({ message: "UOM already exists" });
+    }
+
     const parseId = parseInt(id);
     const data = await prisma.master_uom.update({
       where: {
@@ -44,6 +87,8 @@ const updateUOM = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+// ---------------------------------------------------------------------------------------------
 
 const deleteUOM = async (req, res) => {
   try {

@@ -1,12 +1,16 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+//doenst needed in project but it can be used in landing dashbooard
 const getStat = async (req, res) => {
   try {
+    //get total data
     const getTotalTransaction = await prisma.transaction.count();
     const getTotalProduct = await prisma.master_product.count();
     const getTotalSupplier = await prisma.master_supplier.count();
     const getTotalEmployee = await prisma.fw_user_role.count();
+
+    //get oldest data
 
     const getOldestTransaction = await prisma.transaction.findFirst({
       orderBy: {

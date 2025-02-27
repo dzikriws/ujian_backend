@@ -20,9 +20,16 @@ const getAllProduct = async (req, res) => {
   }
 };
 
+// ---------------------------------------------------------------------------------------------
+
 const createProduct = async (req, res) => {
   try {
     const { product_name, description } = req.body;
+
+    if (!product_name || !description) {
+      return res.status(400).json({ message: "product_name and description are required" });
+    }
+    
     const data = await prisma.master_product.create({
       data: {
         product_name,
@@ -35,6 +42,8 @@ const createProduct = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+// ---------------------------------------------------------------------------------------------
 
 const updateProduct = async (req, res) => {
   try {
@@ -52,11 +61,18 @@ const updateProduct = async (req, res) => {
         description,
       },
     });
+
+    if (!data) {
+      return res.status(404).json({ message: "product not found" });
+    }
+
     res.status(201).json({ message: "success update product", data: data });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
+
+// ---------------------------------------------------------------------------------------------
 
 const deleteProduct = async (req, res) => {
   try {

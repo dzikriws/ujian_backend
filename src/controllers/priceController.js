@@ -1,14 +1,23 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
+//this function doesn't exist needed in project
 const createPriceList = async (req, res) => {
   try {
     const { product_id, uom_id, price } = req.body;
+    if (!product_id || !uom_id || !price) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const parseId = parseInt(product_id);
+    const parseUom = parseInt(uom_id);
+    const parsePrice = parseFloat(price);
+
     const data = await prisma.price_list.create({
       data: {
-        product_id,
-        uom_id,
-        price,
+        product_id: parseId,
+        uom_id: parseUom,
+        price: parsePrice,
       },
     });
     res.status(201).json({ message: "success create price list", data: data });
@@ -16,6 +25,8 @@ const createPriceList = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+// ---------------------------------------------------------------------------------------------
 
 const getAllPriceList = async (req, res) => {
   try {
@@ -30,6 +41,8 @@ const getAllPriceList = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+// ---------------------------------------------------------------------------------------------
 
 const updatePriceList = async (req, res) => {
   try {
@@ -51,6 +64,8 @@ const updatePriceList = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+// ---------------------------------------------------------------------------------------------
 
 const deletePriceList = async (req, res) => {
   try {
@@ -78,9 +93,7 @@ const getPriceProduct = async (req, res) => {
         uom_id: parseUom,
       },
     });
-    res
-      .status(200)
-      .json({ message: "success get price", data: data });
+    res.status(200).json({ message: "success get price", data: data });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -91,5 +104,5 @@ module.exports = {
   getAllPriceList,
   updatePriceList,
   deletePriceList,
-  getPriceProduct
+  getPriceProduct,
 };

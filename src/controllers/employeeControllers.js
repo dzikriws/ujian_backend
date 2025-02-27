@@ -10,6 +10,8 @@ const getAllEmployee = async (req, res) => {
   }
 };
 
+// ----------------------------------------------------------------------------
+
 const createUserRole = async (req, res) => {
   try {
     const { username, role } = req.body;
@@ -26,6 +28,8 @@ const createUserRole = async (req, res) => {
   }
 };
 
+// ----------------------------------------------------------------------------
+
 const getUserRole = async (req, res) => {
   try {
     const getUserRole = await prisma.fw_user_role.findMany({
@@ -40,6 +44,8 @@ const getUserRole = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+// -----------------------------------------------------------------------------
 
 const updateUserRole = async (req, res) => {
   try {
@@ -64,6 +70,8 @@ const updateUserRole = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+// ---------------------------------------------------------------------------------------------
 
 const deleteUserRole = async (req, res) => {
   try {

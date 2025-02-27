@@ -3,10 +3,12 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const crypto = require("crypto");
 
+// hashing password using md5 before save into master_user
 const hashPasswordMD5 = (password) => {
   return crypto.createHash("md5").update(password).digest("hex");
 };
 
+// this controller doesnt exist in frontend to create new account
 const registerUser = async (req, res) => {
   try {
     const { id, username, email, password } = req.body;
@@ -60,10 +62,6 @@ const registerUser = async (req, res) => {
       },
     });
 
-    //delete password from request to avoid logging it
-    const sanitizedRequest = { ...req.body };
-    delete sanitizedRequest.password;
-
     res
       .status(201)
       .json({ message: "Successfully registered new user", data: user });
@@ -72,6 +70,8 @@ const registerUser = async (req, res) => {
     res.status(500).json({ message: "Error registering new user", error });
   }
 };
+
+// ---------------------------------------------------------------------------------------------
 
 const loginUser = async (req, res) => {
   try {
@@ -93,6 +93,7 @@ const loginUser = async (req, res) => {
         .json({ message: "Username or password is incorrect" });
     }
 
+    // compare password with md5 standard
     const isPasswordValid = hashPasswordMD5(password) === user.hash_password;
 
     if (!isPasswordValid) {
