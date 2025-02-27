@@ -1,11 +1,10 @@
 model master_product {
-    id           Int      @id @default(autoincrement())
-    product_name String
-    description  String?
-    created_at   DateTime @default(now())
-    updated_at   DateTime @default(now()) @updatedAt
-    status       String
-
-    transaction_detail transaction_detail[]
-    price_list         price_list[]
+  description        String?
+  created_at         DateTime             @default(now())
+  updated_at         DateTime             @default(now()) @updatedAt
+  status             String
+  product_name       String
+  id                 Int                  @id @default(autoincrement())
+  price_list         price_list[]
+  transaction_detail transaction_detail[]
 }

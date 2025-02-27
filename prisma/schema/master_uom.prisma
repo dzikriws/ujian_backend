@@ -1,10 +1,9 @@
 model master_uom {
-    id              Int      @id @default(autoincrement())
-    name            String   @unique
-    rate_conversion Decimal  @db.Decimal(15, 2)
-    created_at      DateTime @default(now())
-    updated_at      DateTime @default(now()) @updatedAt
-
-    transaction_detail transaction_detail[]
-    price_list         price_list[]
+  name               String               @unique
+  rate_conversion    Decimal              @db.Decimal(15, 2)
+  created_at         DateTime             @default(now())
+  updated_at         DateTime             @default(now()) @updatedAt
+  id                 Int                  @id @default(autoincrement())
+  price_list         price_list[]
+  transaction_detail transaction_detail[]
 }

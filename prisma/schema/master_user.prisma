@@ -1,8 +1,8 @@
 model master_user {
-    id            Int      @id @default(autoincrement())
-    username      String   
-    email         String  
-    hash_password String
-    ts_insert     DateTime @default(now())
-    status        String
+  username      String
+  status        String
+  id            Int      @id @default(autoincrement())
+  email         String
+  hash_password String
+  ts_insert     DateTime @default(now())
 }

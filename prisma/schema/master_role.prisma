@@ -1,5 +1,5 @@
 model master_role {
-    id     Int    @id @default(autoincrement())
-    name   String @unique
-    status String
+  name   String @unique
+  status String
+  id     Int    @id @default(autoincrement())
 }

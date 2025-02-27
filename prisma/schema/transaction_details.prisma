@@ -1,13 +1,12 @@
 model transaction_detail {
-    id             Int     @id @default(autoincrement())
-    transaction_id Int
-    product_id     Int
-    uom_id         Int
-    quantity       Decimal @db.Decimal(15, 2)
-    price          Decimal @db.Decimal(15, 2)
-    amount         Decimal @db.Decimal(15, 2)
-
-    transaction transaction @relation(fields: [transaction_id], references: [id])
-    product     master_product @relation(fields: [product_id], references: [id])
-    uom         master_uom     @relation(fields: [uom_id], references: [id])
+  quantity       Decimal        @db.Decimal(15, 2)
+  amount         Decimal        @db.Decimal(15, 2)
+  price          Decimal        @db.Decimal(15, 2)
+  id             Int            @id @default(autoincrement())
+  transaction_id Int
+  product_id     Int
+  uom_id         Int
+  product        master_product @relation(fields: [product_id], references: [id])
+  transaction    transaction    @relation(fields: [transaction_id], references: [id])
+  uom            master_uom     @relation(fields: [uom_id], references: [id])
 }

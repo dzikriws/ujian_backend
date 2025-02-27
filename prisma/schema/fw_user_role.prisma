@@ -1,7 +1,7 @@
 model fw_user_role {
-    role_id   Int      @id @default(autoincrement())
-    username  String
-    role      String
-    ts_insert DateTime @default(now())
-    status    String
+  status    String
+  role_id   Int      @id @default(autoincrement())
+  role      String
+  ts_insert DateTime @default(now())
+  username  String
 }
